@@ -8,7 +8,7 @@
   }
 
   &.is-disabled .tab-item__icon { filter: grayscale(100%) opacity(.2); }
-  .tab-item__icon { width: 34px; }
+  .tab-item__icon { width: 50%; }
 }
 
 .tabs {
@@ -25,16 +25,16 @@
 .tab-item {
   align-items: center;
   display: flex;
-  height: 65px;
+  height: 40px;
   justify-content: center;
-  min-height: 50px;
+  min-height: 40px;
   position: relative;
   transition: background $theme-transition-time;
   width: $theme-sidebar-width;
 
   &.is-active {
     background: lighten($theme-brand-primary, 35%);
-    border-left: 4px solid $theme-brand-primary;
+    border-left: 2px solid $theme-brand-primary;
 
     .tab-item__icon { margin-left: -4px; }
   }

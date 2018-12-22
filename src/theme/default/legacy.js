@@ -14,7 +14,7 @@ export const themeGrayLightest = '#f7f7f9';
 export const themeBorderRadius = '6px';
 export const themeBorderRadiusSmall = '3px';
 
-export const themeSidebarWidth = '68px';
+export const themeSidebarWidth = '40px';
 
 export const themeTextColor = themeGrayDark;
 
