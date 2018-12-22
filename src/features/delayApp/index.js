@@ -18,7 +18,7 @@ export const state = observable({
 
 function setVisibility(value) {
   Object.assign(state, {
-    isDelayAppScreenVisible: value,
+    isDelayAppScreenVisible: false,
   });
 }
 
