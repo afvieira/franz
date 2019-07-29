@@ -854,7 +854,7 @@ export default class FranzMenu {
     });
 
     // Workspace items
-    if (this.stores.user.isPremium) {
+    if (true) {
       workspaces.forEach((workspace, i) => menu.push({
         label: workspace.name,
         accelerator: i < 9 ? `${cmdKey}+Alt+${i + 1}` : null,

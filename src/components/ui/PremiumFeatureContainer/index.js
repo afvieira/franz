@@ -45,13 +45,12 @@ class PremiumFeatureContainer extends Component {
       children,
       actions,
       condition,
-      stores,
       gaEventInfo,
     } = this.props;
 
     const { intl } = this.context;
 
-    return !stores.user.data.isPremium && !!condition ? (
+    return !true && !!condition ? (
       <div className={classes.container}>
         <div className={classes.titleContainer}>
           <p className={classes.title}>Premium Feature</p>

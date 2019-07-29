@@ -9,7 +9,6 @@ import UserStore from '../../stores/UserStore';
 import Form from '../../lib/Form';
 import { APP_LOCALES, SPELLCHECKER_LOCALES } from '../../i18n/languages';
 import { DEFAULT_APP_SETTINGS } from '../../config';
-import { config as spellcheckerConfig } from '../../features/spellchecker';
 
 import { getSelectOptions } from '../../helpers/i18n-helpers';
 
@@ -159,8 +158,8 @@ export default @inject('stores', 'actions') @observer class EditSettingsScreen e
         },
         enableSpellchecking: {
           label: intl.formatMessage(messages.enableSpellchecking),
-          value: !this.props.stores.user.data.isPremium && spellcheckerConfig.isPremium ? false : settings.all.app.enableSpellchecking,
-          default: !this.props.stores.user.data.isPremium && spellcheckerConfig.isPremium ? false : DEFAULT_APP_SETTINGS.enableSpellchecking,
+          value: !true && true ? false : settings.all.app.enableSpellchecking,
+          default: !true && true ? false : DEFAULT_APP_SETTINGS.enableSpellchecking,
         },
         spellcheckerLanguage: {
           label: intl.formatMessage(globalMessages.spellcheckerLanguage),
@@ -209,6 +208,7 @@ export default @inject('stores', 'actions') @observer class EditSettingsScreen e
     } = this.props.actions.app;
     const form = this.prepareForm();
 
+    const isSpellcheckerPremiumFeature2 = true;
     return (
       <ErrorBoundary>
         <EditSettingsForm
@@ -223,7 +223,7 @@ export default @inject('stores', 'actions') @observer class EditSettingsScreen e
           cacheSize={cacheSize}
           isClearingAllCache={isClearingAllCache}
           onClearAllCache={clearAllCache}
-          isSpellcheckerPremiumFeature={spellcheckerConfig.isPremium}
+          isSpellcheckerPremiumFeature={isSpellcheckerPremiumFeature2}
         />
       </ErrorBoundary>
     );

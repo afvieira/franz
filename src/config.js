@@ -45,15 +45,15 @@ export const DEFAULT_APP_SETTINGS = {
 };
 
 export const DEFAULT_FEATURES_CONFIG = {
-  isSpellcheckerPremiumFeature: false,
+  isSpellcheckerPremiumFeature: true,
   needToWaitToProceed: false,
   needToWaitToProceedConfig: {
     delayOffset: ms('1h'),
     wait: ms('10s'),
   },
-  isServiceProxyEnabled: false,
+  isServiceProxyEnabled: true,
   isServiceProxyPremiumFeature: true,
-  isAnnouncementsEnabled: true,
+  isAnnouncementsEnabled: false,
   isWorkspacePremiumFeature: true,
   isWorkspaceEnabled: false,
 };

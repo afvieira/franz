@@ -18,7 +18,6 @@ import { required, url, oneRequired } from '../../helpers/validation-helpers';
 import { getSelectOptions } from '../../helpers/i18n-helpers';
 
 import { config as proxyFeature } from '../../features/serviceProxy';
-import { config as spellcheckerFeature } from '../../features/spellchecker';
 
 import { SPELLCHECKER_LOCALES } from '../../i18n/languages';
 
@@ -316,6 +315,10 @@ export default @inject('stores', 'actions') @observer class EditServiceScreen ex
 
     const form = this.prepareForm(recipe, service, proxyFeature);
 
+    const isProxyPremiumFeature2 = true;
+    const isSpellcheckerPremiumFeature2 = true;
+
+
     return (
       <ErrorBoundary>
         <EditServiceForm
@@ -330,8 +333,8 @@ export default @inject('stores', 'actions') @observer class EditServiceScreen ex
           onSubmit={d => this.onSubmit(d)}
           onDelete={() => this.deleteService()}
           isProxyFeatureEnabled={proxyFeature.isEnabled}
-          isProxyPremiumFeature={proxyFeature.isPremium}
-          isSpellcheckerPremiumFeature={spellcheckerFeature.isPremium}
+          isProxyPremiumFeature={isProxyPremiumFeature2}
+          isSpellcheckerPremiumFeature={isSpellcheckerPremiumFeature2}
         />
       </ErrorBoundary>
     );

@@ -67,7 +67,7 @@ export default @inject('stores', 'actions') @observer class RecipesScreen extend
 
   render() {
     const {
-      recipePreviews, recipes, services, user,
+      recipePreviews, recipes, services,
     } = this.props.stores;
     const { showAddServiceInterface } = this.props.actions.service;
 
@@ -89,13 +89,15 @@ export default @inject('stores', 'actions') @observer class RecipesScreen extend
       || recipes.installRecipeRequest.isExecuting
       || recipePreviews.searchRecipePreviewsRequest.isExecuting;
 
+    const isPremium2 = true;
+
     return (
       <ErrorBoundary>
         <RecipesDashboard
           recipes={allRecipes}
           isLoading={isLoading}
           addedServiceCount={services.all.length}
-          isPremium={user.data.isPremium}
+          isPremium={isPremium2}
           hasLoadedRecipes={recipePreviews.featuredRecipePreviewsRequest.wasExecuted}
           showAddServiceInterface={showAddServiceInterface}
           searchRecipes={e => this.searchRecipes(e)}
