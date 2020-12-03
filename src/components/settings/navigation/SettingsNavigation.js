@@ -61,7 +61,7 @@ export default @inject('stores') @observer class SettingsNavigation extends Comp
   render() {
     const { serviceCount, workspaceCount, stores } = this.props;
     const { isDarkThemeActive } = stores.ui;
-    const { router, user } = stores;
+    const { router } = stores;
     const { intl } = this.context;
 
     return (
@@ -110,7 +110,7 @@ export default @inject('stores') @observer class SettingsNavigation extends Comp
           activeClassName="is-active"
         >
           {intl.formatMessage(messages.team)}
-          {!user.data.isPremium && (
+          {!true && (
             <ProBadge inverted={!isDarkThemeActive && router.location.pathname === '/settings/team'} />
           )}
         </Link>

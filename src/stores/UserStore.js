@@ -143,7 +143,7 @@ export default class UserStore extends Store {
   }
 
   @computed get isPremium() {
-    return !!this.data.isPremium;
+    return true;
   }
 
   @computed get legacyServices() {

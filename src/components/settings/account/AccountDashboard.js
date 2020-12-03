@@ -148,7 +148,7 @@ export default @observer class AccountDashboard extends Component {
                     <div className="account__info">
                       <h2>
                         <span className="username">{`${user.firstname} ${user.lastname}`}</span>
-                        {user.isPremium && (
+                        {true && (
                           <>
                             {' '}
                             <ProBadge />
@@ -158,7 +158,7 @@ export default @observer class AccountDashboard extends Component {
                       </h2>
                       {user.organization && `${user.organization}, `}
                       {user.email}
-                      {user.isPremium && (
+                      {true && (
                         <div className="manage-user-links">
                           <Button
                             label={intl.formatMessage(messages.accountEditButton)}
@@ -182,7 +182,7 @@ export default @observer class AccountDashboard extends Component {
                         </div>
                       )}
                     </div>
-                    {!user.isPremium && (
+                    {!true && (
                       <Button
                         label={intl.formatMessage(messages.accountEditButton)}
                         className="franz-form__button--inverted"
@@ -193,7 +193,7 @@ export default @observer class AccountDashboard extends Component {
                 </div>
               )}
 
-              {!user.isPremium && (
+              {!true && (
                 isLoadingPlans ? (
                   <Loader />
                 ) : (

@@ -18,7 +18,7 @@ export const state = observable({
 
 function setVisibility(value) {
   Object.assign(state, {
-    isDelayAppScreenVisible: false,
+    isDelayAppScreenVisible: value,
   });
 }
 
@@ -33,7 +33,7 @@ export default function init(stores) {
   };
 
   reaction(
-    () => stores.user.isLoggedIn && stores.services.allServicesRequest.wasExecuted && stores.features.features.needToWaitToProceed && !stores.user.data.isPremium,
+    () => stores.user.isLoggedIn && stores.services.allServicesRequest.wasExecuted && stores.features.features.needToWaitToProceed && !true,
     (isEnabled) => {
       if (isEnabled) {
         debug('Enabling `delayApp` feature');
@@ -54,7 +54,7 @@ export default function init(stores) {
           if ((stores.app.isFocused && diff >= config.delayOffset) || !shownAfterLaunch) {
             debug(`App will be delayed for ${config.delayDuration / 1000}s`);
 
-            setVisibility(true);
+            setVisibility(false);
             gaPage('/delayApp');
             gaEvent('DelayApp', 'show', 'Delay App Feature');
 
