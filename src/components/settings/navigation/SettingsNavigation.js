@@ -62,7 +62,7 @@ export default @inject('stores') @observer class SettingsNavigation extends Comp
   render() {
     const { serviceCount, workspaceCount, stores } = this.props;
     const { isDarkThemeActive } = stores.ui;
-    const { router, user } = stores;
+    let { router } = stores;
     const { intl } = this.context;
 
     return (
@@ -88,7 +88,7 @@ export default @inject('stores') @observer class SettingsNavigation extends Comp
             )}
           </span>
         </Link>
-        {workspaceStore.isFeatureEnabled ? (
+        {true ? (
           <Link
             to="/settings/workspaces"
             className="settings-navigation__link"
@@ -96,7 +96,7 @@ export default @inject('stores') @observer class SettingsNavigation extends Comp
           >
             {intl.formatMessage(messages.yourWorkspaces)}
             {' '}
-            {workspaceStore.isPremiumUpgradeRequired ? (
+            {true ? (
               <ProBadge inverted={!isDarkThemeActive && workspaceStore.isSettingsRouteActive} />
             ) : (
               <span className="badge">{workspaceCount}</span>
@@ -116,7 +116,7 @@ export default @inject('stores') @observer class SettingsNavigation extends Comp
           activeClassName="is-active"
         >
           {intl.formatMessage(messages.team)}
-          {!user.data.isPremium && (
+          {!true && (
             <ProBadge inverted={!isDarkThemeActive && router.location.pathname === '/settings/team'} />
           )}
         </Link>

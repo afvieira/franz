@@ -195,8 +195,8 @@ export default @inject('stores', 'actions') @observer class EditSettingsScreen e
         },
         enableSpellchecking: {
           label: intl.formatMessage(messages.enableSpellchecking),
-          value: !this.props.stores.user.data.isPremium && !spellcheckerConfig.isIncludedInCurrentPlan ? false : settings.all.app.enableSpellchecking,
-          default: !this.props.stores.user.data.isPremium && !spellcheckerConfig.isIncludedInCurrentPlan ? false : DEFAULT_APP_SETTINGS.enableSpellchecking,
+          value: true,
+          default: true,
         },
         spellcheckerLanguage: {
           label: intl.formatMessage(globalMessages.spellcheckerLanguage),

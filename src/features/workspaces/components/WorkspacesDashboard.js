@@ -152,7 +152,7 @@ class WorkspacesDashboard extends Component {
             </Appear>
           )}
 
-          {workspaceStore.isPremiumUpgradeRequired && (
+          {false && (
             <div className={classes.premiumAnnouncement}>
 
               <h1 className={classes.announcementHeadline}>{intl.formatMessage(messages.workspaceFeatureHeadline)}</h1>
@@ -172,7 +172,7 @@ class WorkspacesDashboard extends Component {
             </div>
           )}
 
-          {!workspaceStore.isPremiumUpgradeRequired && (
+          {!false && (
             <>
               {/* ===== Create workspace form ===== */}
               <div className={classes.createForm}>

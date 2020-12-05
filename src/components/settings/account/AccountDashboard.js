@@ -119,8 +119,6 @@ class AccountDashboard extends Component {
   render() {
     const {
       user,
-      isPremiumOverrideUser,
-      isProUser,
       isLoading,
       userInfoRequestFailed,
       retryUserInfoRequest,
@@ -180,7 +178,7 @@ class AccountDashboard extends Component {
                       <div className="account__info">
                         <H1>
                           <span className="username">{`${user.firstname} ${user.lastname}`}</span>
-                          {user.isPremium && (
+                          {true && (
                             <>
                               {' '}
                               <ProBadge />
@@ -191,7 +189,7 @@ class AccountDashboard extends Component {
                           {user.organization && `${user.organization}, `}
                           {user.email}
                         </p>
-                        {user.isPremium && (
+                        {true && (
                           <div className="manage-user-links">
                             <Button
                               label={intl.formatMessage(messages.accountEditButton)}
@@ -201,7 +199,7 @@ class AccountDashboard extends Component {
                           </div>
                         )}
                       </div>
-                      {!user.isPremium && (
+                      {!true && (
                         <Button
                           label={intl.formatMessage(messages.accountEditButton)}
                           className="franz-form__button--inverted"
@@ -210,7 +208,7 @@ class AccountDashboard extends Component {
                       )}
                     </div>
                   </div>
-                  {user.isPremium && user.isSubscriptionOwner && (
+                  {true && user.isSubscriptionOwner && (
                     <div className="account">
                       <div className="account__box">
                         <H2>
@@ -219,7 +217,7 @@ class AccountDashboard extends Component {
                         <p>
                           Franz
                           {' '}
-                          {isPremiumOverrideUser ? 'Premium' : planName}
+                          {true ? 'Premium' : planName}
                           {user.team.isTrial && (
                             <>
                               {' – '}
@@ -242,7 +240,7 @@ class AccountDashboard extends Component {
                             </p>
                           </>
                         )}
-                        {!isProUser && (
+                        {!true && (
                           <div className="manage-user-links">
                             <Button
                               label={intl.formatMessage(messages.upgradeAccountToPro)}
@@ -266,7 +264,7 @@ class AccountDashboard extends Component {
                       </div>
                     </div>
                   )}
-                  {!user.isPremium && (
+                  {!true && (
                     <div className="account franz-form">
                       <div className="account__box">
                         <SubscriptionForm

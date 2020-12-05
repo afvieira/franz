@@ -41,7 +41,7 @@ export default class FeaturesStore extends Store {
     setTimeout(this._setupFeatures.bind(this), 1);
 
     // single key reaction
-    reaction(() => this.stores.user.data.isPremium, () => {
+    reaction(() => true, () => {
       if (this.stores.user.isLoggedIn) {
         this.featuresRequest.invalidate({ immediately: true });
       }

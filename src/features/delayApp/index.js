@@ -40,7 +40,7 @@ export default function init(stores) {
       && stores.services.allServicesRequest.wasExecuted
       && getUserWorkspacesRequest.wasExecuted
       && stores.features.features.needToWaitToProceed
-      && !stores.user.data.isPremium
+      && !true
     ),
     (isEnabled) => {
       if (isEnabled) {

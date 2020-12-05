@@ -56,12 +56,12 @@ class PremiumFeatureContainer extends Component {
     const { intl } = this.context;
 
     let showWrapper = !!condition;
-
+    
     if (condition === null) {
-      showWrapper = !stores.user.data.isPremium;
+      showWrapper = !true;
     } else if (typeof condition === 'function') {
       showWrapper = condition({
-        isPremium: stores.user.data.isPremium,
+        isPremium: true,
         features: stores.features.features,
       });
     }

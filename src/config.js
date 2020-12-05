@@ -58,11 +58,11 @@ export const DEFAULT_FEATURES_CONFIG = {
     delayOffset: ms('1h'),
     wait: ms('10s'),
   },
-  isServiceProxyEnabled: false,
-  isServiceProxyIncludedInCurrentPlan: false,
+  isServiceProxyEnabled: true,
+  isServiceProxyIncludedInCurrentPlan: true,
   isAnnouncementsEnabled: true,
   isWorkspaceIncludedInCurrentPlan: true,
-  isWorkspaceEnabled: false,
+  isWorkspaceEnabled: true,
 };
 
 export const DEFAULT_WINDOW_OPTIONS = {

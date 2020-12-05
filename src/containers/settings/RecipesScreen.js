@@ -111,7 +111,7 @@ export default @inject('stores', 'actions') @observer class RecipesScreen extend
           recipes={allRecipes}
           isLoading={isLoading}
           addedServiceCount={services.all.length}
-          isPremium={user.data.isPremium}
+          isPremium={true}
           hasLoadedRecipes={recipePreviews.featuredRecipePreviewsRequest.wasExecuted}
           showAddServiceInterface={serviceActions.showAddServiceInterface}
           searchRecipes={e => this.searchRecipes(e)}
@@ -129,7 +129,7 @@ export default @inject('stores', 'actions') @observer class RecipesScreen extend
             gaEvent('Recipe', 'open-dev-docs', 'Developer Documentation');
           }}
           isCommunityRecipesIncludedInCurrentPlan={communityRecipesStore.isCommunityRecipesIncludedInCurrentPlan}
-          isUserPremiumUser={user.isPremium}
+          isUserPremiumUser={true}
         />
       </ErrorBoundary>
     );

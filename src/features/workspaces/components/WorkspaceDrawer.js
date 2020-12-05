@@ -145,7 +145,7 @@ class WorkspaceDrawer extends Component {
     return (
       <div className={classes.drawer}>
         <H1 className={classes.headline}>
-          {workspaceStore.isPremiumUpgradeRequired && (
+          {false && (
             <span
               className={classes.headlineProBadge}
               data-tip={`${intl.formatMessage(messages.premiumFeatureBadge)}`}
@@ -169,7 +169,7 @@ class WorkspaceDrawer extends Component {
             />
           </span>
         </H1>
-        {workspaceStore.isPremiumUpgradeRequired ? (
+        {false ? (
           <div className={classes.premiumAnnouncement}>
             <FormattedHTMLMessage {...messages.workspaceFeatureInfo} />
             {workspaceStore.userHasWorkspaces ? (

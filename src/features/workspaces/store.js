@@ -20,13 +20,13 @@ import { createActionBindings } from '../utils/ActionBinding';
 const debug = require('debug')('Franz:feature:workspaces:store');
 
 export default class WorkspacesStore extends FeatureStore {
-  @observable isFeatureEnabled = false;
+  @observable isFeatureEnabled = true;
 
   @observable isFeatureActive = false;
 
   @observable isPremiumFeature = true;
 
-  @observable isPremiumUpgradeRequired = true;
+  @observable isPremiumUpgradeRequired = false;
 
   @observable activeWorkspace = null;
 
@@ -59,7 +59,7 @@ export default class WorkspacesStore extends FeatureStore {
   }
 
   @computed get isUserAllowedToUseFeature() {
-    return !this.isPremiumUpgradeRequired;
+    return true;
   }
 
   @computed get isAnyWorkspaceActive() {

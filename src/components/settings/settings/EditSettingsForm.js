@@ -104,7 +104,7 @@ export default @observer class EditSettingsForm extends Component {
     isSpellcheckerIncludedInCurrentPlan: PropTypes.bool.isRequired,
     isTodosEnabled: PropTypes.bool.isRequired,
     isWorkspaceEnabled: PropTypes.bool.isRequired,
-    hasAddedTodosAsService: PropTypes.bool.isRequired,
+    hasAddedTodosAsService: PropTypes.bool,
     isOnline: PropTypes.bool.isRequired,
   };
 
@@ -135,10 +135,8 @@ export default @observer class EditSettingsForm extends Component {
       isClearingAllCache,
       onClearAllCache,
       cacheSize,
-      isSpellcheckerIncludedInCurrentPlan,
       isTodosEnabled,
       isWorkspaceEnabled,
-      hasAddedTodosAsService,
       isOnline,
     } = this.props;
     const { intl } = this.context;
@@ -174,7 +172,7 @@ export default @observer class EditSettingsForm extends Component {
             {isWorkspaceEnabled && (
               <Toggle field={form.$('keepAllWorkspacesLoaded')} />
             )}
-            {isTodosEnabled && !hasAddedTodosAsService && (
+            {isTodosEnabled && !true && (
               <Toggle field={form.$('enableTodos')} />
             )}
 
@@ -188,7 +186,7 @@ export default @observer class EditSettingsForm extends Component {
             <h2 id="language">{intl.formatMessage(messages.headlineLanguage)}</h2>
             <Select field={form.$('locale')} showLabel={false} />
             <PremiumFeatureContainer
-              condition={!isSpellcheckerIncludedInCurrentPlan}
+              condition={!true}
               gaEventInfo={{ category: 'User', event: 'upgrade', label: 'spellchecker' }}
             >
               <Fragment>

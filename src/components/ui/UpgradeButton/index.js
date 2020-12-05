@@ -51,26 +51,6 @@ class UpgradeButton extends Component {
   }
 
   render() {
-    const { stores, requiresPro } = this.props;
-    const { intl } = this.context;
-
-    const { isPremium, isPersonal } = stores.user;
-
-    if (isPremium && isPersonal && requiresPro) {
-      return (
-        <Button
-          label={intl.formatMessage(messages.upgradeToPro)}
-          onClick={this.handleCTAClick.bind(this)}
-          className={this.props.className}
-          buttonType="inverted"
-        />
-      );
-    }
-
-    if (!isPremium) {
-      return <ActivateTrialButton {...this.props} />;
-    }
-
     return null;
   }
 }

@@ -341,9 +341,9 @@ export default @inject('stores', 'actions') @observer class EditServiceScreen ex
           isDeleting={services.deleteServiceRequest.isExecuting}
           onSubmit={d => this.onSubmit(d)}
           onDelete={() => this.deleteService()}
-          isProxyFeatureEnabled={proxyFeature.isEnabled}
-          isServiceProxyIncludedInCurrentPlan={proxyFeature.isIncludedInCurrentPlan}
-          isSpellcheckerIncludedInCurrentPlan={spellcheckerFeature.isIncludedInCurrentPlan}
+          isProxyFeatureEnabled={true}
+          isServiceProxyIncludedInCurrentPlan={true}
+          isSpellcheckerIncludedInCurrentPlan={true}
         />
       </ErrorBoundary>
     );
