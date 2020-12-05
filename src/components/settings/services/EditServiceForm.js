@@ -17,6 +17,9 @@ import ImageUpload from '../../ui/ImageUpload';
 import Select from '../../ui/Select';
 
 import PremiumFeatureContainer from '../../ui/PremiumFeatureContainer';
+import LimitReachedInfobox from '../../../features/serviceLimit/components/LimitReachedInfobox';
+import { serviceLimitStore } from '../../../features/serviceLimit';
+import { isMac } from '../../../environment';
 
 const messages = defineMessages({
   saveService: {
@@ -75,6 +78,10 @@ const messages = defineMessages({
     id: 'settings.service.form.isMutedInfo',
     defaultMessage: '!!!When disabled, all notification sounds and audio playback are muted',
   },
+  isHibernationEnabledInfo: {
+    id: 'settings.service.form.isHibernatedEnabledInfo',
+    defaultMessage: '!!!When enabled, a service will be shut down after a period of time to save system resources.',
+  },
   headlineNotifications: {
     id: 'settings.service.form.headlineNotifications',
     defaultMessage: '!!!Notifications',
@@ -128,8 +135,8 @@ export default @observer class EditServiceForm extends Component {
     isSaving: PropTypes.bool.isRequired,
     isDeleting: PropTypes.bool.isRequired,
     isProxyFeatureEnabled: PropTypes.bool.isRequired,
-    isProxyPremiumFeature: PropTypes.bool.isRequired,
-    isSpellcheckerPremiumFeature: PropTypes.bool.isRequired,
+    isServiceProxyIncludedInCurrentPlan: PropTypes.bool.isRequired,
+    isSpellcheckerIncludedInCurrentPlan: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
@@ -192,8 +199,8 @@ export default @observer class EditServiceForm extends Component {
       isDeleting,
       onDelete,
       isProxyFeatureEnabled,
-      isProxyPremiumFeature,
-      isSpellcheckerPremiumFeature,
+      isServiceProxyIncludedInCurrentPlan,
+      isSpellcheckerIncludedInCurrentPlan,
     } = this.props;
     const { intl } = this.context;
 
@@ -252,6 +259,7 @@ export default @observer class EditServiceForm extends Component {
             )}
           </span>
         </div>
+        <LimitReachedInfobox />
         <div className="settings__body">
           <form onSubmit={e => this.submit(e)} id="form">
             <div className="service-name">
@@ -330,6 +338,10 @@ export default @observer class EditServiceForm extends Component {
                     <Toggle field={form.$('isDarkModeEnabled')} />
                   )}
                   <Toggle field={form.$('isEnabled')} />
+                  <Toggle field={form.$('isHibernationEnabled')} />
+                  <p className="settings__help">
+                    {intl.formatMessage(messages.isHibernationEnabledInfo)}
+                  </p>
                 </div>
               </div>
               <div className="service-icon">
@@ -341,18 +353,20 @@ export default @observer class EditServiceForm extends Component {
               </div>
             </div>
 
-            <PremiumFeatureContainer
-              condition={isSpellcheckerPremiumFeature}
-              gaEventInfo={{ category: 'User', event: 'upgrade', label: 'spellchecker' }}
-            >
-              <div className="settings__settings-group">
-                <Select field={form.$('spellcheckerLanguage')} />
-              </div>
-            </PremiumFeatureContainer>
+            {!isMac && (
+              <PremiumFeatureContainer
+                condition={!isSpellcheckerIncludedInCurrentPlan}
+                gaEventInfo={{ category: 'User', event: 'upgrade', label: 'spellchecker' }}
+              >
+                <div className="settings__settings-group">
+                  <Select field={form.$('spellcheckerLanguage')} />
+                </div>
+              </PremiumFeatureContainer>
+            )}
 
             {isProxyFeatureEnabled && (
               <PremiumFeatureContainer
-                condition={isProxyPremiumFeature}
+                condition={!isServiceProxyIncludedInCurrentPlan}
                 gaEventInfo={{ category: 'User', event: 'upgrade', label: 'proxy' }}
               >
                 <div className="settings__settings-group">
@@ -418,7 +432,7 @@ export default @observer class EditServiceForm extends Component {
               type="submit"
               label={intl.formatMessage(messages.saveService)}
               htmlForm="form"
-              disabled={action !== 'edit' && form.isPristine && requiresUserInput}
+              disabled={action !== 'edit' && ((form.isPristine && requiresUserInput) || serviceLimitStore.userHasReachedServiceLimit)}
             />
           )}
         </div>

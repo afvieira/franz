@@ -11,6 +11,7 @@ class ServiceWebview extends Component {
     service: PropTypes.instanceOf(ServiceModel).isRequired,
     setWebviewReference: PropTypes.func.isRequired,
     detachService: PropTypes.func.isRequired,
+    isSpellcheckerEnabled: PropTypes.bool.isRequired,
   };
 
   webview = null;
@@ -20,19 +21,32 @@ class ServiceWebview extends Component {
     detachService({ service });
   }
 
+  refocusWebview = () => {
+    const { webview } = this;
+    if (!webview) return;
+    webview.view.blur();
+    webview.view.focus();
+  };
+
   render() {
     const {
       service,
       setWebviewReference,
+      isSpellcheckerEnabled,
     } = this.props;
 
     return (
       <ElectronWebView
-        ref={(webview) => { this.webview = webview; }}
+        ref={(webview) => {
+          this.webview = webview;
+          if (webview && webview.view) {
+            webview.view.addEventListener('did-stop-loading', this.refocusWebview);
+          }
+        }}
         autosize
         src={service.url}
         preload="./webview/recipe.js"
-        partition={`persist:service-${service.id}`}
+        partition={service.partition}
         onDidAttach={() => {
           setWebviewReference({
             serviceId: service.id,
@@ -41,7 +55,9 @@ class ServiceWebview extends Component {
         }}
         onUpdateTargetUrl={this.updateTargetUrl}
         useragent={service.userAgent}
+        disablewebsecurity={service.recipe.disablewebsecurity}
         allowpopups
+        webpreferences={`spellcheck=${isSpellcheckerEnabled ? 1 : 0}`}
       />
     );
   }

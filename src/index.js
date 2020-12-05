@@ -8,11 +8,25 @@ import isDevMode from 'electron-is-dev';
 import fs from 'fs-extra';
 import path from 'path';
 import windowStateKeeper from 'electron-window-state';
+import { enforceMacOSAppLocation } from 'electron-util';
+import ms from 'ms';
 
 // Set app directory before loading user modules
+if (process.env.FRANZ_APPDATA_DIR != null) {
+  app.setPath('appData', process.env.FRANZ_APPDATA_DIR);
+  app.setPath('userData', path.join(app.getPath('appData')));
+} else if (process.platform === 'win32') {
+  app.setPath('appData', process.env.APPDATA);
+  app.setPath('userData', path.join(app.getPath('appData'), app.getName()));
+}
+
 if (isDevMode) {
   app.setPath('userData', path.join(app.getPath('appData'), 'FranzDev'));
 }
+
+// workaround for https://github.com/electron/electron/pull/26432
+app.allowRendererProcessReuse = false;
+app.commandLine.appendSwitch('disable-features', 'CrossOriginOpenerPolicy');
 
 /* eslint-disable import/first */
 import {
@@ -26,6 +40,7 @@ import Tray from './lib/Tray';
 import Settings from './electron/Settings';
 import handleDeepLink from './electron/deepLinking';
 import { isPositionValid } from './electron/windowUtils';
+import askFormacOSPermissions from './electron/macOSPermissions';
 import { appId } from './package.json'; // eslint-disable-line import/no-unresolved
 import './electron/exception';
 
@@ -35,9 +50,14 @@ import {
 } from './config';
 import { asarPath } from './helpers/asar-helpers';
 import { isValidExternalURL } from './helpers/url-helpers';
-/* eslint-enable import/first */
+import userAgent from './helpers/userAgent-helpers';
 
+/* eslint-enable import/first */
 const debug = require('debug')('Franz:App');
+
+// Globally set useragent to fix user agent override in service workers
+debug('Set userAgent to ', userAgent());
+app.userAgentFallback = userAgent();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -64,8 +84,15 @@ if (isWindows) {
   app.setAppUserModelId(appId);
 }
 
+// Initialize Settings
+const settings = new Settings('app', DEFAULT_APP_SETTINGS);
+const proxySettings = new Settings('proxy');
+
+// add `liftSingleInstanceLock` to settings.json to override the single instance lock
+const liftSingleInstanceLock = settings.get('liftSingleInstanceLock') || false;
+
 // Force single window
-const gotTheLock = app.requestSingleInstanceLock();
+const gotTheLock = liftSingleInstanceLock ? true : app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
@@ -105,45 +132,12 @@ if (!gotTheLock) {
     }
   });
 }
-// const isSecondInstance = app.makeSingleInstance((argv) => {
-//   if (mainWindow) {
-//     if (mainWindow.isMinimized()) mainWindow.restore();
-//     mainWindow.focus();
-
-//     if (process.platform === 'win32') {
-//       // Keep only command line / deep linked arguments
-//       const url = argv.slice(1);
-
-//       if (url) {
-//         handleDeepLink(mainWindow, url.toString());
-//       }
-//     }
-//   }
-
-//   if (argv.includes('--reset-window')) {
-//     // Needs to be delayed to not interfere with mainWindow.restore();
-//     setTimeout(() => {
-//       debug('Resetting windows via Task');
-//       mainWindow.setPosition(DEFAULT_WINDOW_OPTIONS.x + 100, DEFAULT_WINDOW_OPTIONS.y + 100);
-//       mainWindow.setSize(DEFAULT_WINDOW_OPTIONS.width, DEFAULT_WINDOW_OPTIONS.height);
-//     }, 1);
-//   }
-// });
-
-// if (isSecondInstance) {
-//   console.log('An instance of Franz is already running. Exiting...');
-//   app.exit();
-// }
 
 // Fix Unity indicator issue
 // https://github.com/electron/electron/issues/9046
 if (isLinux && ['Pantheon', 'Unity:Unity7'].indexOf(process.env.XDG_CURRENT_DESKTOP) !== -1) {
   process.env.XDG_CURRENT_DESKTOP = 'Unity';
 }
-
-// Initialize Settings
-const settings = new Settings('app', DEFAULT_APP_SETTINGS);
-const proxySettings = new Settings('proxy');
 
 // Disable GPU acceleration
 if (!settings.get('enableGPUAcceleration')) {
@@ -181,12 +175,16 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true,
       webviewTag: true,
+      enableRemoteModule: true,
     },
   });
 
   mainWindow.webContents.on('did-finish-load', () => {
     const fns = onDidLoadFns;
     onDidLoadFns = null;
+
+    if (!fns) return;
+
     for (const fn of fns) {
       fn(mainWindow);
     }
@@ -288,6 +286,10 @@ const createWindow = () => {
     }
   });
 
+  if (isMac) {
+    setTimeout(() => askFormacOSPermissions(mainWindow), ms('30s'));
+  }
+
   mainWindow.on('show', () => {
     debug('Skip taskbar: false');
     mainWindow.setSkipTaskbar(false);
@@ -324,6 +326,9 @@ if (argv['auth-negotiate-delegate-whitelist']) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  // force app to live in /Applications
+  enforceMacOSAppLocation();
+
   // Register App URL
   app.setAsDefaultProtocolClient('franz');
 
@@ -360,22 +365,7 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
   debug('browser login event', authInfo);
   event.preventDefault();
 
-  if (authInfo.isProxy && authInfo.scheme === 'basic') {
-    debug('Sending service echo ping');
-    webContents.send('get-service-id');
-
-    ipcMain.once('service-id', (e, id) => {
-      debug('Received service id', id);
-
-      const ps = proxySettings.get(id);
-      if (ps) {
-        debug('Sending proxy auth callback for service', id);
-        callback(ps.user, ps.password);
-      } else {
-        debug('No proxy auth config found for', id);
-      }
-    });
-  } else if (authInfo.scheme === 'basic') {
+  if (!authInfo.isProxy && authInfo.scheme === 'basic') {
     debug('basic auth handler', authInfo);
     basicAuthHandler(mainWindow, authInfo);
   }
@@ -421,6 +411,12 @@ app.on('activate', () => {
   } else {
     mainWindow.show();
   }
+});
+
+app.on('web-contents-created', (createdEvent, contents) => {
+  contents.on('new-window', (event, url, frameNme, disposition) => {
+    if (disposition === 'foreground-tab') event.preventDefault();
+  });
 });
 
 app.on('will-finish-launching', () => {

@@ -1,4 +1,4 @@
-import { remote, shell } from 'electron';
+import { remote, shell, clipboard } from 'electron';
 import { observable, autorun } from 'mobx';
 import { defineMessages } from 'react-intl';
 
@@ -8,6 +8,9 @@ import { workspaceActions } from '../features/workspaces/actions';
 import { gaEvent } from './analytics';
 import { announcementActions } from '../features/announcements/actions';
 import { announcementsStore } from '../features/announcements';
+import { GA_CATEGORY_TODOS, todosStore } from '../features/todos';
+import { todoActions } from '../features/todos/actions';
+import { CUSTOM_WEBSITE_ID } from '../features/webControls/constants';
 
 const { app, Menu, dialog } = remote;
 
@@ -96,6 +99,10 @@ const menuItems = defineMessages({
     id: 'menu.view.toggleDevTools',
     defaultMessage: '!!!Toggle Developer Tools',
   },
+  toggleTodosDevTools: {
+    id: 'menu.view.toggleTodosDevTools',
+    defaultMessage: '!!!Toggle Todos Developer Tools',
+  },
   toggleServiceDevTools: {
     id: 'menu.view.toggleServiceDevTools',
     defaultMessage: '!!!Toggle Service Developer Tools',
@@ -107,6 +114,10 @@ const menuItems = defineMessages({
   reloadFranz: {
     id: 'menu.view.reloadFranz',
     defaultMessage: '!!!Reload Franz',
+  },
+  reloadTodos: {
+    id: 'menu.view.reloadTodos',
+    defaultMessage: '!!!Reload ToDos',
   },
   minimize: {
     id: 'menu.window.minimize',
@@ -127,6 +138,18 @@ const menuItems = defineMessages({
   support: {
     id: 'menu.help.support',
     defaultMessage: '!!!Support',
+  },
+  debugInfo: {
+    id: 'menu.help.debugInfo',
+    defaultMessage: '!!!Copy Debug Information',
+  },
+  debugInfoCopiedHeadline: {
+    id: 'menu.help.debugInfoCopiedHeadline',
+    defaultMessage: '!!!Franz Debug Information',
+  },
+  debugInfoCopiedBody: {
+    id: 'menu.help.debugInfoCopiedBody',
+    defaultMessage: '!!!Your Debug Information has been copied to your clipboard.',
   },
   tos: {
     id: 'menu.help.tos',
@@ -228,6 +251,26 @@ const menuItems = defineMessages({
     id: 'menu.workspaces.defaultWorkspace',
     defaultMessage: '!!!Default',
   },
+  todos: {
+    id: 'menu.todos',
+    defaultMessage: '!!!Todos',
+  },
+  openTodosDrawer: {
+    id: 'menu.Todoss.openTodosDrawer',
+    defaultMessage: '!!!Open Todos drawer',
+  },
+  closeTodosDrawer: {
+    id: 'menu.Todoss.closeTodosDrawer',
+    defaultMessage: '!!!Close Todos drawer',
+  },
+  enableTodos: {
+    id: 'menu.todos.enableTodos',
+    defaultMessage: '!!!Enable Todos',
+  },
+  serviceGoHome: {
+    id: 'menu.services.goHome',
+    defaultMessage: '!!!Home',
+  },
 });
 
 function getActiveWebview() {
@@ -268,6 +311,9 @@ const _templateFactory = intl => [
         label: intl.formatMessage(menuItems.pasteAndMatchStyle),
         accelerator: 'Cmd+Shift+V',
         selector: 'pasteAndMatchStyle:',
+        click() {
+          getActiveWebview().pasteAndMatchStyle();
+        },
       },
       {
         label: intl.formatMessage(menuItems.delete),
@@ -298,10 +344,10 @@ const _templateFactory = intl => [
         accelerator: 'Cmd+plus',
         click() {
           const activeService = getActiveWebview();
-          activeService.getZoomLevel((level) => {
-            // level 9 =~ +300% and setZoomLevel wouldnt zoom in further
-            if (level < 9) activeService.setZoomLevel(level + 1);
-          });
+          const level = activeService.getZoomLevel();
+
+          // level 9 =~ +300% and setZoomLevel wouldnt zoom in further
+          if (level < 9) activeService.setZoomLevel(level + 1);
         },
       },
       {
@@ -309,10 +355,10 @@ const _templateFactory = intl => [
         accelerator: 'Cmd+-',
         click() {
           const activeService = getActiveWebview();
-          activeService.getZoomLevel((level) => {
-            // level -9 =~ -50% and setZoomLevel wouldnt zoom out further
-            if (level > -9) activeService.setZoomLevel(level - 1);
-          });
+          const level = activeService.getZoomLevel();
+
+          // level -9 =~ -50% and setZoomLevel wouldnt zoom out further
+          if (level > -9) activeService.setZoomLevel(level - 1);
         },
       },
       {
@@ -334,6 +380,11 @@ const _templateFactory = intl => [
     label: intl.formatMessage(menuItems.workspaces),
     submenu: [],
     visible: workspaceStore.isFeatureEnabled,
+  },
+  {
+    label: intl.formatMessage(menuItems.todos),
+    submenu: [],
+    visible: todosStore.isFeatureEnabled,
   },
   {
     label: intl.formatMessage(menuItems.window),
@@ -468,10 +519,10 @@ const _titleBarTemplateFactory = intl => [
         accelerator: `${ctrlKey}+=`,
         click() {
           const activeService = getActiveWebview();
-          activeService.getZoomLevel((level) => {
-            // level 9 =~ +300% and setZoomLevel wouldnt zoom in further
-            if (level < 9) activeService.setZoomLevel(level + 1);
-          });
+          const level = activeService.getZoomLevel();
+
+          // level 9 =~ +300% and setZoomLevel wouldnt zoom in further
+          if (level < 9) activeService.setZoomLevel(level + 1);
         },
       },
       {
@@ -479,10 +530,10 @@ const _titleBarTemplateFactory = intl => [
         accelerator: `${ctrlKey}+-`,
         click() {
           const activeService = getActiveWebview();
-          activeService.getZoomLevel((level) => {
-            // level -9 =~ -50% and setZoomLevel wouldnt zoom out further
-            if (level > -9) activeService.setZoomLevel(level - 1);
-          });
+          const level = activeService.getZoomLevel();
+
+          // level -9 =~ -50% and setZoomLevel wouldnt zoom out further
+          if (level > -9) activeService.setZoomLevel(level - 1);
         },
       },
       {
@@ -507,6 +558,11 @@ const _titleBarTemplateFactory = intl => [
     label: intl.formatMessage(menuItems.workspaces),
     submenu: [],
     visible: workspaceStore.isFeatureEnabled,
+  },
+  {
+    label: intl.formatMessage(menuItems.todos),
+    submenu: [],
+    visible: todosStore.isFeatureEnabled,
   },
   {
     label: intl.formatMessage(menuItems.window),
@@ -584,7 +640,9 @@ export default class FranzMenu {
     // need to clone object so we don't modify computed (cached) object
     const serviceTpl = Object.assign([], this.serviceTpl());
 
-    if (window.franz === undefined) {
+    // Don't initialize when window.franz is undefined or when we are on a payment window route
+    if (window.franz === undefined || this.stores.router.location.pathname.startsWith('/payment/')) {
+      console.log('skipping menu init');
       return;
     }
 
@@ -608,14 +666,29 @@ export default class FranzMenu {
       enabled: this.stores.user.isLoggedIn && this.stores.services.enabled.length > 0,
     });
 
+    if (this.stores.features.features.isTodosEnabled) {
+      tpl[1].submenu.push({
+        label: intl.formatMessage(menuItems.toggleTodosDevTools),
+        accelerator: `${cmdKey}+Shift+Alt+O`,
+        click: () => {
+          const webview = document.querySelector('#todos-panel webview');
+          if (webview) this.actions.todos.openDevTools();
+        },
+      });
+    }
+
     tpl[1].submenu.unshift({
       label: intl.formatMessage(menuItems.reloadService),
       id: 'reloadService', // TODO: needed?
       accelerator: `${cmdKey}+R`,
       click: () => {
         if (this.stores.user.isLoggedIn
-          && this.stores.services.enabled.length > 0) {
-          this.actions.service.reloadActive();
+        && this.stores.services.enabled.length > 0) {
+          if (this.stores.services.active.recipe.id === CUSTOM_WEBSITE_ID) {
+            this.stores.services.active.webview.reload();
+          } else {
+            this.actions.service.reloadActive();
+          }
         } else {
           window.location.reload();
         }
@@ -626,10 +699,16 @@ export default class FranzMenu {
       click: () => {
         window.location.reload();
       },
+    }, {
+      label: intl.formatMessage(menuItems.reloadTodos),
+      accelerator: `${cmdKey}+Shift+Alt+R`,
+      click: () => {
+        this.actions.todos.reload();
+      },
     });
 
     tpl.unshift({
-      label: isMac ? app.getName() : intl.formatMessage(menuItems.file),
+      label: isMac ? app.name : intl.formatMessage(menuItems.file),
       submenu: [
         {
           label: intl.formatMessage(menuItems.about),
@@ -760,6 +839,14 @@ export default class FranzMenu {
       tpl[4].submenu = this.workspacesMenu();
     }
 
+    if (todosStore.isFeatureEnabled) {
+      tpl[5].submenu = this.todosMenu();
+    }
+
+    tpl[tpl.length - 1].submenu.push({
+      type: 'separator',
+    }, this.debugMenu());
+
     this.currentTemplate = tpl;
     const menu = Menu.buildFromTemplate(tpl);
     Menu.setApplicationMenu(menu);
@@ -804,8 +891,22 @@ export default class FranzMenu {
       checked: service.isActive,
       click: () => {
         this.actions.service.setActive({ serviceId: service.id });
+
+        if (isMac && i === 0) {
+          app.mainWindow.restore();
+        }
       },
     })));
+
+    if (services.active && services.active.recipe.id === CUSTOM_WEBSITE_ID) {
+      menu.push({
+        type: 'separator',
+      }, {
+        label: intl.formatMessage(menuItems.serviceGoHome),
+        accelerator: `${cmdKey}+shift+H`,
+        click: () => this.actions.service.reloadActive(),
+      });
+    }
 
     return menu;
   }
@@ -868,6 +969,61 @@ export default class FranzMenu {
     }
 
     return menu;
+  }
+
+  todosMenu() {
+    const { isTodosPanelVisible, isFeatureEnabledByUser } = this.stores.todos;
+    const { intl } = window.franz;
+    const menu = [];
+
+    const drawerLabel = isTodosPanelVisible ? menuItems.closeTodosDrawer : menuItems.openTodosDrawer;
+
+    menu.push({
+      label: intl.formatMessage(drawerLabel),
+      accelerator: `${cmdKey}+T`,
+      click: () => {
+        todoActions.toggleTodosPanel();
+        gaEvent(GA_CATEGORY_TODOS, 'toggleDrawer', 'menu');
+      },
+      enabled: this.stores.user.isLoggedIn && isFeatureEnabledByUser,
+    });
+
+    if (!isFeatureEnabledByUser) {
+      menu.push({
+        type: 'separator',
+      }, {
+        label: intl.formatMessage(menuItems.enableTodos),
+        click: () => {
+          todoActions.toggleTodosFeatureVisibility();
+          gaEvent(GA_CATEGORY_TODOS, 'enable', 'menu');
+        },
+      });
+    }
+
+    return menu;
+  }
+
+
+  debugMenu() {
+    const { intl } = window.franz;
+
+    return {
+      label: intl.formatMessage(menuItems.debugInfo),
+      click: () => {
+        const { debugInfo } = this.stores.app;
+
+        clipboard.write({
+          text: JSON.stringify(debugInfo),
+        });
+
+        this.actions.app.notify({
+          title: intl.formatMessage(menuItems.debugInfoCopiedHeadline),
+          options: {
+            body: intl.formatMessage(menuItems.debugInfoCopiedBody),
+          },
+        });
+      },
+    };
   }
 
   _getServiceName(service) {

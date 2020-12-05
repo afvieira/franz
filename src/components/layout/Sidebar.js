@@ -8,6 +8,8 @@ import Tabbar from '../services/tabs/Tabbar';
 import { ctrlKey } from '../../environment';
 import { GA_CATEGORY_WORKSPACES, workspaceStore } from '../../features/workspaces';
 import { gaEvent } from '../../lib/analytics';
+import { todosStore, GA_CATEGORY_TODOS } from '../../features/todos';
+import { todoActions } from '../../features/todos/actions';
 
 const messages = defineMessages({
   settings: {
@@ -34,6 +36,14 @@ const messages = defineMessages({
     id: 'sidebar.closeWorkspaceDrawer',
     defaultMessage: '!!!Close workspace drawer',
   },
+  openTodosDrawer: {
+    id: 'sidebar.openTodosDrawer',
+    defaultMessage: '!!!Open Franz Todos',
+  },
+  closeTodosDrawer: {
+    id: 'sidebar.closeTodosDrawer',
+    defaultMessage: '!!!Close Franz Todos',
+  },
 });
 
 export default @observer class Sidebar extends Component {
@@ -43,6 +53,7 @@ export default @observer class Sidebar extends Component {
     isAppMuted: PropTypes.bool.isRequired,
     isWorkspaceDrawerOpen: PropTypes.bool.isRequired,
     toggleWorkspaceDrawer: PropTypes.func.isRequired,
+    isTodosServiceActive: PropTypes.bool.isRequired,
   };
 
   static contextTypes = {
@@ -77,8 +88,13 @@ export default @observer class Sidebar extends Component {
       isAppMuted,
       isWorkspaceDrawerOpen,
       toggleWorkspaceDrawer,
+      isTodosServiceActive,
     } = this.props;
     const { intl } = this.context;
+    const todosToggleMessage = (
+      todosStore.isTodosPanelVisible ? messages.closeTodosDrawer : messages.openTodosDrawer
+    );
+
     const workspaceToggleMessage = (
       isWorkspaceDrawerOpen ? messages.closeWorkspaceDrawer : messages.openWorkspaceDrawer
     );
@@ -90,6 +106,21 @@ export default @observer class Sidebar extends Component {
           enableToolTip={() => this.enableToolTip()}
           disableToolTip={() => this.disableToolTip()}
         />
+        {todosStore.isFeatureEnabled && todosStore.isFeatureEnabledByUser ? (
+          <button
+            type="button"
+            onClick={() => {
+              todoActions.toggleTodosPanel();
+              this.updateToolTip();
+              gaEvent(GA_CATEGORY_TODOS, 'toggleDrawer', 'sidebar');
+            }}
+            disabled={isTodosServiceActive}
+            className={`sidebar__button sidebar__button--todos  ${todosStore.isTodosPanelVisible ? 'is-active' : ''}`}
+            data-tip={`${intl.formatMessage(todosToggleMessage)} (${ctrlKey}+T)`}
+          >
+            <i className="mdi mdi-check-all" />
+          </button>
+        ) : null}
         {workspaceStore.isFeatureEnabled ? (
           <button
             type="button"

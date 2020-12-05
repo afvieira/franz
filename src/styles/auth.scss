@@ -9,7 +9,7 @@
   }
 
   .auth__logo.auth__logo--sm {
-    border: 4px solid $dark-theme-black;
+    border: none;
     box-shadow: 0 0 6px rgba($dark-theme-black, .5);
   }
 
@@ -100,7 +100,7 @@
     img { width: 65px; }
   }
 
-  .auth__letter { margin-bottom: 30px; }
+  .auth__letter { margin-bottom: 30px; text-align: left; }
   .scroll-container { z-index: 10; }
   .info-bar { position: absolute; }
 

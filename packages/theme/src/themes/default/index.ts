@@ -28,6 +28,8 @@ export const colorHeadline = legacyStyles.themeGrayDark;
 
 export const colorText = legacyStyles.themeTextColor;
 
+export const defaultContentBorder = color(legacyStyles.themeGrayLighter).darken(0.1).rgb().string();
+
 // Subscription Container Component
 export const colorSubscriptionContainerBackground = 'none';
 export const colorSubscriptionContainerBorder = `1px solid ${brandPrimary}`;
@@ -142,7 +144,8 @@ export const badgeFontSize = uiFontSize - 2;
 export const badgeBorderRadius = 50;
 
 // Modal
-export const colorModalOverlayBackground = color('#000').alpha(0.5).rgb().string();
+export const colorModalOverlayBackground = color('#000').alpha(0.8).rgb().string();
+export const colorModalBackground = colorContentBackground;
 
 // Services
 export const services = {
@@ -205,5 +208,44 @@ export const workspaces = {
 export const announcements = {
   spotlight: {
     background: legacyStyles.themeGrayLightest,
+  },
+};
+
+// Signup
+export const signup = {
+  pricing: {
+    feature: {
+      background: legacyStyles.themeGrayLightest,
+      border: legacyStyles.themeGrayLighter,
+    },
+  },
+};
+
+// Todos
+export const todos = {
+  todosLayer: {
+    borderLeftColor: color(legacyStyles.themeGrayLighter).darken(0.1).hex(),
+  },
+  toggleButton: {
+    background: styleTypes.primary.accent,
+    textColor: styleTypes.primary.contrast,
+    shadowColor: 'rgba(0, 0, 0, 0.2)',
+  },
+  dragIndicator: {
+    background: legacyStyles.themeGrayLight,
+  },
+  resizeHandler: {
+    backgroundHover: styleTypes.primary.accent,
+  },
+};
+
+// TrialStatusBar
+export const trialStatusBar = {
+  bar: {
+    background: legacyStyles.themeGrayLightest,
+  },
+  progressBar: {
+    background: color(legacyStyles.themeGrayLighter).darken(0.1).hex(),
+    progressIndicator: legacyStyles.themeGrayLight,
   },
 };

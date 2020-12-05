@@ -6,6 +6,9 @@ import { defineMessages, intlShape } from 'react-intl';
 import { Button } from '@meetfranz/forms';
 import { H1, Icon } from '@meetfranz/ui';
 
+import {
+  mdiHeart, mdiEmail, mdiFacebookBox, mdiTwitter, mdiLinkedinBox,
+} from '@mdi/js';
 import Modal from '../../components/ui/Modal';
 import { state } from '.';
 import { gaEvent } from '../../lib/analytics';
@@ -31,6 +34,10 @@ const messages = defineMessages({
   actionsTwitter: {
     id: 'feature.shareFranz.action.twitter',
     defaultMessage: '!!!Share on Twitter',
+  },
+  actionsLinkedIn: {
+    id: 'feature.shareFranz.action.linkedin',
+    defaultMessage: '!!!Share on LinkedIn',
   },
   shareTextEmail: {
     id: 'feature.shareFranz.shareText.email',
@@ -69,13 +76,14 @@ const styles = theme => ({
     marginBottom: 20,
   },
   actions: {
-    display: 'flex',
-    justifyContent: 'space-between',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gridGap: '1em',
     marginTop: 30,
   },
   cta: {
     background: theme.styleTypes.primary.contrast,
-    color: theme.styleTypes.primary.accent,
+    color: `${theme.styleTypes.primary.accent} !important`,
 
     '& svg': {
       fill: theme.styleTypes.primary.accent,
@@ -116,7 +124,7 @@ export default @injectSheet(styles) @inject('stores') @observer class ShareFranz
         close={this.close.bind(this)}
       >
         <div className={classes.heartContainer}>
-          <Icon icon="mdiHeart" className={classes.heart} size={4} />
+          <Icon icon={mdiHeart} className={classes.heart} size={4} />
         </div>
         <H1 className={classes.headline}>
           {intl.formatMessage(messages.headline)}
@@ -126,7 +134,7 @@ export default @injectSheet(styles) @inject('stores') @observer class ShareFranz
           <Button
             label={intl.formatMessage(messages.actionsEmail)}
             className={classes.cta}
-            icon="mdiEmail"
+            icon={mdiEmail}
             href={`mailto:?subject=Meet the cool app Franz&body=${intl.formatMessage(messages.shareTextEmail, { count: serviceCount })}}`}
             target="_blank"
             onClick={() => {
@@ -136,7 +144,7 @@ export default @injectSheet(styles) @inject('stores') @observer class ShareFranz
           <Button
             label={intl.formatMessage(messages.actionsFacebook)}
             className={classes.cta}
-            icon="mdiFacebookBox"
+            icon={mdiFacebookBox}
             href="https://www.facebook.com/sharer/sharer.php?u=https://www.meetfranz.com?utm_source=facebook&utm_medium=referral&utm_campaign=share-button"
             target="_blank"
             onClick={() => {
@@ -144,10 +152,20 @@ export default @injectSheet(styles) @inject('stores') @observer class ShareFranz
             }}
           />
           <Button
+            label={intl.formatMessage(messages.actionsLinkedIn)}
+            className={classes.cta}
+            icon={mdiLinkedinBox}
+            href="https://www.linkedin.com/sharing/share-offsite/?url=https://meetfranz.com"
+            target="_blank"
+            onClick={() => {
+              gaEvent('Share Franz', 'share', 'Share via LinkedIn');
+            }}
+          />
+          <Button
             label={intl.formatMessage(messages.actionsTwitter)}
             className={classes.cta}
-            icon="mdiTwitter"
-            href={`http://twitter.com/intent/tweet?status=${intl.formatMessage(messages.shareTextTwitter, { count: serviceCount })}`}
+            icon={mdiTwitter}
+            href={`https://twitter.com/intent/tweet?text=${intl.formatMessage(messages.shareTextTwitter, { count: serviceCount })}`}
             target="_blank"
             onClick={() => {
               gaEvent('Share Franz', 'share', 'Share via Twitter');

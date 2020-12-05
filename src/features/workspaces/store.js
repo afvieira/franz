@@ -45,6 +45,11 @@ export default class WorkspacesStore extends FeatureStore {
     return getUserWorkspacesRequest.result || [];
   }
 
+  @computed get isLoadingWorkspaces() {
+    if (!this.isFeatureActive) return false;
+    return getUserWorkspacesRequest.isExecutingFirstTime;
+  }
+
   @computed get settings() {
     return localStorage.getItem('workspaces') || {};
   }
@@ -97,6 +102,7 @@ export default class WorkspacesStore extends FeatureStore {
       [workspaceActions.update, this._update],
       [workspaceActions.activate, this._setActiveWorkspace],
       [workspaceActions.deactivate, this._deactivateActiveWorkspace],
+      [workspaceActions.toggleKeepAllWorkspacesLoadedSetting, this._toggleKeepAllWorkspacesLoadedSetting],
     ]);
     this._allActions = this._freeUserActions.concat(this._premiumUserActions);
     this._registerActions(this._allActions);
@@ -245,6 +251,10 @@ export default class WorkspacesStore extends FeatureStore {
     await updateWorkspaceRequest.execute(activeWorkspace);
   };
 
+  _toggleKeepAllWorkspacesLoadedSetting = async () => {
+    this._updateSettings({ keepAllWorkspacesLoaded: !this.settings.keepAllWorkspacesLoaded });
+  };
+
   // Reactions
 
   _setFeatureEnabledReaction = () => {
@@ -253,11 +263,10 @@ export default class WorkspacesStore extends FeatureStore {
   };
 
   _setIsPremiumFeatureReaction = () => {
-    const { features, user } = this.stores;
-    const { isPremium } = user.data;
-    const { isWorkspacePremiumFeature } = features.features;
-    this.isPremiumFeature = isWorkspacePremiumFeature;
-    this.isPremiumUpgradeRequired = isWorkspacePremiumFeature && !isPremium;
+    const { features } = this.stores;
+    const { isWorkspaceIncludedInCurrentPlan } = features.features;
+    this.isPremiumFeature = !isWorkspaceIncludedInCurrentPlan;
+    this.isPremiumUpgradeRequired = !isWorkspaceIncludedInCurrentPlan;
   };
 
   _setWorkspaceBeingEditedReaction = () => {
